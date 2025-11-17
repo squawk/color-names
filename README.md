@@ -6,7 +6,7 @@ A modern web application built with React and Vite that allows you to find color
 
 - Interactive RGB sliders with real-time color preview
 - Direct RGB value input for precise control
-- Large color database with 140+ named colors
+- **Massive color database with 29,998 named colors**
 - Beautiful gradient background and modern UI
 - Responsive design that works on all devices
 - Instant color name lookup
@@ -63,10 +63,20 @@ npm run dev
 
 ## Color Database
 
-The app includes a comprehensive database of named colors including:
+The app includes a massive database of **29,998 named colors** from the [color-name-list](https://www.npmjs.com/package/color-name-list) package, including:
 - Basic web colors (Red, Blue, Green, etc.)
 - Extended CSS colors (Cornflower Blue, Saddle Brown, etc.)
-- Special colors (Earth Tone, and many more)
+- Creative color names (Acid Green, Blue Whale, etc.)
+- Specialty colors (Earth Tone, and thousands more)
+
+### Regenerating the Color Database
+
+To regenerate the color database from the latest color-name-list:
+
+```bash
+npm install
+node generate-colors.cjs
+```
 
 ## License
 
