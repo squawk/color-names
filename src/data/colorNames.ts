@@ -180060,3 +180060,54 @@ export function findSimilarColors(
 
   return colorsWithDistance;
 }
+
+/**
+ * Find colors at approximately a specific distance percentage from the target RGB
+ * @param r - Red value (0-255)
+ * @param g - Green value (0-255)
+ * @param b - Blue value (0-255)
+ * @param targetPercent - Target distance percentage (0-100)
+ * @param rangePercent - Range around target (default: 5%). E.g., 80% ± 5% = 75-85%
+ * @param maxResults - Maximum number of results to return (default: 50)
+ * @returns Array of colors sorted by how close they are to the target distance
+ */
+export function findColorsAtDistance(
+  r: number,
+  g: number,
+  b: number,
+  targetPercent: number,
+  rangePercent: number = 5,
+  maxResults: number = 50
+): ColorDistance[] {
+  // Maximum possible distance in RGB space
+  const maxDistance = Math.sqrt(255 * 255 + 255 * 255 + 255 * 255); // ~441.67
+
+  // Convert percentages to actual distances
+  const targetDistance = (targetPercent / 100) * maxDistance;
+  const rangeDistance = (rangePercent / 100) * maxDistance;
+
+  const minDistance = Math.max(0, targetDistance - rangeDistance);
+  const maxDistanceThreshold = Math.min(maxDistance, targetDistance + rangeDistance);
+
+  // Calculate distances for all colors
+  const colorsWithDistance: ColorDistance[] = colorNames
+    .map(color => {
+      const distance = calculateColorDistance(r, g, b, color.r, color.g, color.b);
+      const percentage = (distance / maxDistance) * 100;
+      return {
+        ...color,
+        distance,
+        percentage
+      };
+    })
+    .filter(color => color.distance >= minDistance && color.distance <= maxDistanceThreshold)
+    .sort((a, b) => {
+      // Sort by how close to target distance
+      const aDiff = Math.abs(a.distance - targetDistance);
+      const bDiff = Math.abs(b.distance - targetDistance);
+      return aDiff - bDiff;
+    })
+    .slice(0, maxResults);
+
+  return colorsWithDistance;
+}

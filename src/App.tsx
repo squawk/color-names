@@ -1,17 +1,53 @@
 import { useState } from 'react'
-import { findColorByRGB, findSimilarColors } from './data/colorNames'
+import { findColorByRGB, findSimilarColors, findColorsAtDistance } from './data/colorNames'
+import { parseColor, rgbToHex } from './utils/colorParser'
 import './App.css'
 
 function App() {
   const [red, setRed] = useState(160)
   const [green, setGreen] = useState(110)
   const [blue, setBlue] = useState(87)
+  const [colorInput, setColorInput] = useState('')
+  const [searchError, setSearchError] = useState('')
   const [tolerance, setTolerance] = useState(5)
   const [showSimilar, setShowSimilar] = useState(false)
+  const [searchMode, setSearchMode] = useState<'similar' | 'distance'>('similar')
+  const [distancePercent, setDistancePercent] = useState(80)
 
   const colorMatch = findColorByRGB(red, green, blue)
-  const similarColors = findSimilarColors(red, green, blue, tolerance, 20)
   const rgbString = `rgb(${red}, ${green}, ${blue})`
+  const hexString = rgbToHex(red, green, blue)
+
+  // Get similar colors based on mode
+  const getSimilarColors = () => {
+    if (searchMode === 'similar') {
+      return findSimilarColors(red, green, blue, tolerance, 20)
+    } else {
+      return findColorsAtDistance(red, green, blue, distancePercent, 5, 20)
+    }
+  }
+
+  const similarColors = getSimilarColors()
+
+  // Handle color search input
+  const handleColorSearch = () => {
+    const parsed = parseColor(colorInput)
+    if (parsed) {
+      setRed(parsed.r)
+      setGreen(parsed.g)
+      setBlue(parsed.b)
+      setSearchError('')
+      setColorInput('')
+    } else {
+      setSearchError('Invalid format. Try: "Earth Tone", "#A06E57", or "160, 110, 87"')
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleColorSearch()
+    }
+  }
 
   return (
     <div className="app">
@@ -19,17 +55,40 @@ function App() {
         <h1>RGB Color Name Finder</h1>
         <p className="subtitle">Adjust the sliders to find color names</p>
 
+        <div className="color-search">
+          <h3>Color Search</h3>
+          <p className="search-hint">
+            Enter a color name, RGB, or Hex value
+          </p>
+          <div className="search-input-row">
+            <input
+              type="text"
+              value={colorInput}
+              onChange={(e) => setColorInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder='Try "Earth Tone", "#A06E57", or "160, 110, 87"'
+              className="color-search-input"
+            />
+            <button onClick={handleColorSearch} className="search-button">
+              Search
+            </button>
+          </div>
+          {searchError && <p className="search-error">{searchError}</p>}
+        </div>
+
         <div className="color-display" style={{ backgroundColor: rgbString }}>
           <div className="color-info">
             {colorMatch ? (
               <>
                 <div className="color-name">{colorMatch.name}</div>
                 <div className="rgb-value">{rgbString}</div>
+                <div className="hex-value">{hexString}</div>
               </>
             ) : (
               <>
                 <div className="no-match">No named color match</div>
                 <div className="rgb-value">{rgbString}</div>
+                <div className="hex-value">{hexString}</div>
               </>
             )}
           </div>
@@ -133,25 +192,68 @@ function App() {
 
           {showSimilar && (
             <>
-              <div className="slider-group">
-                <label htmlFor="tolerance-slider">
-                  <span className="slider-label">Tolerance</span>
-                  <span className="slider-value">{tolerance}%</span>
+              <div className="mode-selector">
+                <label className={`mode-option ${searchMode === 'similar' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    value="similar"
+                    checked={searchMode === 'similar'}
+                    onChange={(e) => setSearchMode(e.target.value as 'similar' | 'distance')}
+                  />
+                  <span>Similar Colors</span>
                 </label>
-                <input
-                  id="tolerance-slider"
-                  type="range"
-                  min="0"
-                  max="50"
-                  step="0.5"
-                  value={tolerance}
-                  onChange={(e) => setTolerance(parseFloat(e.target.value))}
-                  className="slider tolerance-slider"
-                />
-                <p className="tolerance-hint">
-                  {tolerance === 0 ? 'Exact match only' : `Find colors within ${tolerance}% similarity`}
-                </p>
+                <label className={`mode-option ${searchMode === 'distance' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    value="distance"
+                    checked={searchMode === 'distance'}
+                    onChange={(e) => setSearchMode(e.target.value as 'similar' | 'distance')}
+                  />
+                  <span>At Distance</span>
+                </label>
               </div>
+
+              {searchMode === 'similar' ? (
+                <div className="slider-group">
+                  <label htmlFor="tolerance-slider">
+                    <span className="slider-label">Tolerance</span>
+                    <span className="slider-value">{tolerance}%</span>
+                  </label>
+                  <input
+                    id="tolerance-slider"
+                    type="range"
+                    min="0"
+                    max="50"
+                    step="0.5"
+                    value={tolerance}
+                    onChange={(e) => setTolerance(parseFloat(e.target.value))}
+                    className="slider tolerance-slider"
+                  />
+                  <p className="tolerance-hint">
+                    {tolerance === 0 ? 'Exact match only' : `Find colors within ${tolerance}% similarity`}
+                  </p>
+                </div>
+              ) : (
+                <div className="slider-group">
+                  <label htmlFor="distance-slider">
+                    <span className="slider-label">Target Distance</span>
+                    <span className="slider-value">{distancePercent}%</span>
+                  </label>
+                  <input
+                    id="distance-slider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={distancePercent}
+                    onChange={(e) => setDistancePercent(parseFloat(e.target.value))}
+                    className="slider distance-slider"
+                  />
+                  <p className="tolerance-hint">
+                    Find colors approximately {distancePercent}% different from the selected color
+                  </p>
+                </div>
+              )}
 
               <div className="similar-colors-list">
                 {similarColors.length > 0 ? (
@@ -174,8 +276,10 @@ function App() {
                         <div className="color-match-info">
                           {color.distance === 0 ? (
                             <span className="exact-match">Exact Match</span>
-                          ) : (
+                          ) : searchMode === 'similar' ? (
                             <span className="similarity">{(100 - color.percentage).toFixed(1)}% similar</span>
+                          ) : (
+                            <span className="distance-badge">{color.percentage.toFixed(1)}% away</span>
                           )}
                         </div>
                       </div>
@@ -183,7 +287,10 @@ function App() {
                   </>
                 ) : (
                   <p className="no-results">
-                    No colors found within {tolerance}% tolerance. Try increasing the tolerance.
+                    {searchMode === 'similar'
+                      ? `No colors found within ${tolerance}% tolerance. Try increasing the tolerance.`
+                      : `No colors found at ${distancePercent}% distance. Try a different percentage.`
+                    }
                   </p>
                 )}
               </div>

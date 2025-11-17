@@ -4,18 +4,35 @@ A modern web application built with React and Vite that allows you to find color
 
 ## Features
 
+- **Multi-format color input** - Search by RGB, Hex, or color name
 - Interactive RGB sliders with real-time color preview
 - Direct RGB value input for precise control
 - **Massive color database with 29,998 named colors**
-- **Similar colors finder with adjustable tolerance**
-- Find colors within a specified percentage similarity
+- **Two search modes:**
+  - **Similar Colors** - Find colors within a tolerance percentage (0-50%)
+  - **At Distance** - Find colors at a specific distance percentage (0-100%)
+- Display RGB and Hex values for any color
 - Beautiful gradient background and modern UI
 - Responsive design that works on all devices
 - Instant color name lookup
 
-## Example
+## Examples
 
+### Basic Lookup
 Set RGB values to `rgb(160, 110, 87)` and you'll get **Earth Tone** as the result!
+
+### Color Search
+Search for a color using any format:
+- **By name**: "Earth Tone"
+- **By Hex**: "#A06E57" or "A06E57"
+- **By RGB**: "160, 110, 87" or "rgb(160, 110, 87)"
+
+### Find Colors at Distance
+1. Search for "Earth Tone"
+2. Toggle on "Find Similar Colors"
+3. Select "At Distance" mode
+4. Set distance to 80%
+5. See colors that are approximately 80% different from Earth Tone!
 
 ## Getting Started
 
@@ -46,22 +63,48 @@ npm run dev
 
 ## Usage
 
-### Basic Color Lookup
+### Method 1: Color Search (Easiest!)
+
+Type any color format into the search box:
+- **Color name**: "Earth Tone", "Sky Blue", "Forest Green"
+- **Hex code**: "#A06E57", "ff0000", "#123"
+- **RGB values**: "160, 110, 87", "rgb(255, 0, 0)"
+
+Press Enter or click Search to load the color.
+
+### Method 2: RGB Sliders
 
 1. **Adjust Sliders**: Move the Red, Green, and Blue sliders to change the RGB values
 2. **Direct Input**: Use the number inputs for precise RGB values
-3. **View Results**: The color preview shows the current color, and if there's a matching named color, it will be displayed
+3. **View Results**: The color preview shows the current color with its RGB and Hex values
 
 ### Find Similar Colors
 
 1. **Enable Similar Colors**: Toggle on the "Find Similar Colors" switch
-2. **Adjust Tolerance**: Use the tolerance slider to set the similarity percentage (0-50%)
-   - 0% = Exact matches only
-   - 5% = Very similar colors
-   - 20% = Broader range of similar colors
-3. **Browse Results**: View up to 20 similar colors sorted by closeness, with color swatches and similarity percentages
+2. **Choose Mode**:
+   - **Similar Colors**: Find colors within a tolerance
+     - 0% = Exact matches only
+     - 5% = Very similar colors
+     - 20% = Broader range of similar colors
+   - **At Distance**: Find colors at approximately X% distance
+     - 50% = Colors halfway different
+     - 80% = Colors that are quite different
+     - 100% = Maximum color difference
+3. **Browse Results**: View up to 20 colors with swatches and distance percentages
 
-**Example**: Set RGB to `rgb(160, 110, 87)` and enable similar colors with 10% tolerance to find colors close to Earth Tone!
+### Example Workflows
+
+**Find similar colors to Earth Tone:**
+1. Search "Earth Tone"
+2. Toggle on "Find Similar Colors"
+3. Select "Similar Colors" mode
+4. Set tolerance to 10%
+
+**Find complementary colors:**
+1. Search "Earth Tone"
+2. Toggle on "Find Similar Colors"
+3. Select "At Distance" mode
+4. Set distance to 80% to find contrasting colors
 
 ## Tech Stack
 

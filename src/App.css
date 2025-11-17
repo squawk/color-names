@@ -23,6 +23,74 @@ h1 {
   font-size: 0.95rem;
 }
 
+/* Color Search */
+.color-search {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #e0e0e0;
+}
+
+.color-search h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.search-hint {
+  margin: 0 0 12px 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.search-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.color-search-input {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  transition: border-color 0.2s ease;
+}
+
+.color-search-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.search-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.search-button:active {
+  transform: translateY(0);
+}
+
+.search-error {
+  margin: 10px 0 0 0;
+  color: #dc3545;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 .color-display {
   width: 100%;
   height: 200px;
@@ -63,6 +131,13 @@ h1 {
 .rgb-value {
   font-size: 1rem;
   color: #666;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 4px;
+}
+
+.hex-value {
+  font-size: 0.9rem;
+  color: #888;
   font-family: 'Courier New', monospace;
 }
 
@@ -258,6 +333,55 @@ h1 {
   background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
 }
 
+.distance-slider {
+  background: linear-gradient(to right, #f093fb 0%, #f5576c 100%);
+}
+
+/* Mode Selector */
+.mode-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.mode-option {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+  border: 2px solid #e0e0e0;
+}
+
+.mode-option input[type="radio"] {
+  display: none;
+}
+
+.mode-option span {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.mode-option.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+}
+
+.mode-option.active span {
+  color: white;
+}
+
+.mode-option:hover:not(.active) {
+  border-color: #667eea;
+  background: #f5f7ff;
+}
+
 .tolerance-hint {
   font-size: 0.85rem;
   color: #666;
@@ -344,6 +468,15 @@ h1 {
 
 .similarity {
   background: #667eea;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.distance-badge {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
