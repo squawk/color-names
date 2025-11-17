@@ -7,6 +7,8 @@ A modern web application built with React and Vite that allows you to find color
 - Interactive RGB sliders with real-time color preview
 - Direct RGB value input for precise control
 - **Massive color database with 29,998 named colors**
+- **Similar colors finder with adjustable tolerance**
+- Find colors within a specified percentage similarity
 - Beautiful gradient background and modern UI
 - Responsive design that works on all devices
 - Instant color name lookup
@@ -44,9 +46,22 @@ npm run dev
 
 ## Usage
 
+### Basic Color Lookup
+
 1. **Adjust Sliders**: Move the Red, Green, and Blue sliders to change the RGB values
-2. **Direct Input**: Use the number inputs at the bottom for precise RGB values
+2. **Direct Input**: Use the number inputs for precise RGB values
 3. **View Results**: The color preview shows the current color, and if there's a matching named color, it will be displayed
+
+### Find Similar Colors
+
+1. **Enable Similar Colors**: Toggle on the "Find Similar Colors" switch
+2. **Adjust Tolerance**: Use the tolerance slider to set the similarity percentage (0-50%)
+   - 0% = Exact matches only
+   - 5% = Very similar colors
+   - 20% = Broader range of similar colors
+3. **Browse Results**: View up to 20 similar colors sorted by closeness, with color swatches and similarity percentages
+
+**Example**: Set RGB to `rgb(160, 110, 87)` and enable similar colors with 10% tolerance to find colors close to Earth Tone!
 
 ## Tech Stack
 
