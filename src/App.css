@@ -153,6 +153,7 @@ h1 {
 .quick-inputs {
   border-top: 2px solid #f0f0f0;
   padding-top: 25px;
+  margin-bottom: 25px;
 }
 
 .quick-inputs h3 {
@@ -188,6 +189,194 @@ h1 {
   opacity: 1;
 }
 
+/* Similar Colors Section */
+.similar-colors-section {
+  border-top: 2px solid #f0f0f0;
+  padding-top: 25px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #667eea;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.tolerance-slider {
+  background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
+}
+
+.tolerance-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Similar Colors List */
+.similar-colors-list {
+  margin-top: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 15px;
+  background: #fafafa;
+}
+
+.results-count {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.color-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.color-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.color-swatch {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.color-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.color-item-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.color-item-rgb {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.color-match-info {
+  flex-shrink: 0;
+}
+
+.exact-match {
+  background: #4caf50;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.similarity {
+  background: #667eea;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.no-results {
+  text-align: center;
+  color: #999;
+  padding: 30px;
+  font-style: italic;
+}
+
+/* Scrollbar styling for similar colors list */
+.similar-colors-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.similar-colors-list::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.similar-colors-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.similar-colors-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 25px;
@@ -203,5 +392,19 @@ h1 {
 
   .color-display {
     height: 150px;
+  }
+
+  .color-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .color-swatch {
+    width: 100%;
+    height: 60px;
+  }
+
+  .color-match-info {
+    align-self: flex-end;
   }
 }

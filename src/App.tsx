@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { findColorByRGB } from './data/colorNames'
+import { findColorByRGB, findSimilarColors } from './data/colorNames'
 import './App.css'
 
 function App() {
   const [red, setRed] = useState(160)
   const [green, setGreen] = useState(110)
   const [blue, setBlue] = useState(87)
+  const [tolerance, setTolerance] = useState(5)
+  const [showSimilar, setShowSimilar] = useState(false)
 
   const colorMatch = findColorByRGB(red, green, blue)
+  const similarColors = findSimilarColors(red, green, blue, tolerance, 20)
   const rgbString = `rgb(${red}, ${green}, ${blue})`
 
   return (
@@ -113,6 +116,79 @@ function App() {
               className="number-input"
             />
           </div>
+        </div>
+
+        <div className="similar-colors-section">
+          <div className="section-header">
+            <h3>Find Similar Colors</h3>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={showSimilar}
+                onChange={(e) => setShowSimilar(e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+
+          {showSimilar && (
+            <>
+              <div className="slider-group">
+                <label htmlFor="tolerance-slider">
+                  <span className="slider-label">Tolerance</span>
+                  <span className="slider-value">{tolerance}%</span>
+                </label>
+                <input
+                  id="tolerance-slider"
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="0.5"
+                  value={tolerance}
+                  onChange={(e) => setTolerance(parseFloat(e.target.value))}
+                  className="slider tolerance-slider"
+                />
+                <p className="tolerance-hint">
+                  {tolerance === 0 ? 'Exact match only' : `Find colors within ${tolerance}% similarity`}
+                </p>
+              </div>
+
+              <div className="similar-colors-list">
+                {similarColors.length > 0 ? (
+                  <>
+                    <p className="results-count">
+                      Found {similarColors.length} color{similarColors.length !== 1 ? 's' : ''}
+                    </p>
+                    {similarColors.map((color, index) => (
+                      <div key={`${color.name}-${index}`} className="color-item">
+                        <div
+                          className="color-swatch"
+                          style={{ backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})` }}
+                        />
+                        <div className="color-details">
+                          <div className="color-item-name">{color.name}</div>
+                          <div className="color-item-rgb">
+                            rgb({color.r}, {color.g}, {color.b})
+                          </div>
+                        </div>
+                        <div className="color-match-info">
+                          {color.distance === 0 ? (
+                            <span className="exact-match">Exact Match</span>
+                          ) : (
+                            <span className="similarity">{(100 - color.percentage).toFixed(1)}% similar</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <p className="no-results">
+                    No colors found within {tolerance}% tolerance. Try increasing the tolerance.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

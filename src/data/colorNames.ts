@@ -180001,3 +180001,62 @@ export function findColorByRGB(r: number, g: number, b: number): ColorName | nul
     color.r === r && color.g === g && color.b === b
   ) || null;
 }
+
+export interface ColorDistance extends ColorName {
+  distance: number;
+  percentage: number;
+}
+
+/**
+ * Calculate the Euclidean distance between two RGB colors
+ * Returns a value between 0 and ~441 (sqrt(255^2 + 255^2 + 255^2))
+ */
+export function calculateColorDistance(
+  r1: number, g1: number, b1: number,
+  r2: number, g2: number, b2: number
+): number {
+  const rDiff = r1 - r2;
+  const gDiff = g1 - g2;
+  const bDiff = b1 - b2;
+  return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+}
+
+/**
+ * Find colors within a certain percentage distance from the target RGB
+ * @param r - Red value (0-255)
+ * @param g - Green value (0-255)
+ * @param b - Blue value (0-255)
+ * @param tolerancePercent - Tolerance percentage (0-100). 0% = exact match, 100% = all colors
+ * @param maxResults - Maximum number of results to return (default: 50)
+ * @returns Array of colors sorted by distance (closest first)
+ */
+export function findSimilarColors(
+  r: number,
+  g: number,
+  b: number,
+  tolerancePercent: number,
+  maxResults: number = 50
+): ColorDistance[] {
+  // Maximum possible distance in RGB space
+  const maxDistance = Math.sqrt(255 * 255 + 255 * 255 + 255 * 255); // ~441.67
+
+  // Convert percentage to actual distance threshold
+  const threshold = (tolerancePercent / 100) * maxDistance;
+
+  // Calculate distances for all colors
+  const colorsWithDistance: ColorDistance[] = colorNames
+    .map(color => {
+      const distance = calculateColorDistance(r, g, b, color.r, color.g, color.b);
+      const percentage = (distance / maxDistance) * 100;
+      return {
+        ...color,
+        distance,
+        percentage
+      };
+    })
+    .filter(color => color.distance <= threshold)
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, maxResults);
+
+  return colorsWithDistance;
+}
