@@ -23,7 +23,8 @@ function App() {
     if (searchMode === 'similar') {
       return findSimilarColors(red, green, blue, tolerance, 20)
     } else {
-      return findColorsAtDistance(red, green, blue, distancePercent, 5, 20)
+      // Use larger range for distance mode to find more colors
+      return findColorsAtDistance(red, green, blue, distancePercent, 15, 20)
     }
   }
 
@@ -250,7 +251,16 @@ function App() {
                     className="slider distance-slider"
                   />
                   <p className="tolerance-hint">
-                    Find colors approximately {distancePercent}% different from the selected color
+                    {distancePercent === 0
+                      ? 'Find exact or very similar colors (0% different)'
+                      : distancePercent < 20
+                        ? `Find colors ${distancePercent}% different (similar shades)`
+                        : distancePercent < 50
+                          ? `Find colors ${distancePercent}% different (related colors)`
+                          : distancePercent < 80
+                            ? `Find colors ${distancePercent}% different (contrasting colors)`
+                            : `Find colors ${distancePercent}% different (opposite colors)`
+                    }
                   </p>
                 </div>
               )}
