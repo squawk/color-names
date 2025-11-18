@@ -21,10 +21,11 @@ function App() {
   // Get similar colors based on mode
   const getSimilarColors = () => {
     if (searchMode === 'similar') {
-      return findSimilarColors(red, green, blue, tolerance, 20)
+      return findSimilarColors(red, green, blue, tolerance, 50)
     } else {
-      // Use larger range for distance mode to find more colors
-      return findColorsAtDistance(red, green, blue, distancePercent, 15, 20)
+      // Use dynamic range - larger range at higher percentages
+      const range = distancePercent < 50 ? 15 : distancePercent < 80 ? 20 : 25
+      return findColorsAtDistance(red, green, blue, distancePercent, range, 50)
     }
   }
 
