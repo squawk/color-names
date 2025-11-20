@@ -180111,3 +180111,84 @@ export function findColorsAtDistance(
 
   return colorsWithDistance;
 }
+
+export interface ColorConstraint {
+  r: number;
+  g: number;
+  b: number;
+  targetPercent: number;
+  name?: string;
+}
+
+/**
+ * Find colors that satisfy multiple distance constraints simultaneously
+ * @param constraints - Array of color constraints (RGB + target distance %)
+ * @param tolerance - How much deviation from target distance is allowed (default: 10%)
+ * @param maxResults - Maximum number of results to return (default: 50)
+ * @returns Array of colors sorted by how well they match all constraints
+ */
+export function findColorsMatchingConstraints(
+  constraints: ColorConstraint[],
+  tolerance: number = 10,
+  maxResults: number = 50
+): ColorDistance[] {
+  if (constraints.length === 0) {
+    return [];
+  }
+
+  // Maximum possible distance in RGB space
+  const maxDistance = Math.sqrt(255 * 255 + 255 * 255 + 255 * 255); // ~441.67
+
+  // Calculate how well each color matches ALL constraints
+  const colorsWithScores: (ColorDistance & { score: number })[] = colorNames
+    .map(color => {
+      let totalError = 0;
+      let validConstraints = 0;
+
+      // Check each constraint
+      for (const constraint of constraints) {
+        const distance = calculateColorDistance(
+          constraint.r, constraint.g, constraint.b,
+          color.r, color.g, color.b
+        );
+        const percentage = (distance / maxDistance) * 100;
+
+        // Calculate how far off this color is from the target distance
+        const error = Math.abs(percentage - constraint.targetPercent);
+
+        // If within tolerance, this constraint is satisfied
+        if (error <= tolerance) {
+          validConstraints++;
+        }
+
+        totalError += error;
+      }
+
+      // Only include colors that satisfy ALL constraints
+      if (validConstraints === constraints.length) {
+        // Average distance to all constraint colors
+        const avgDistance = constraints.reduce((sum, constraint) => {
+          return sum + calculateColorDistance(
+            constraint.r, constraint.g, constraint.b,
+            color.r, color.g, color.b
+          );
+        }, 0) / constraints.length;
+
+        const avgPercentage = (avgDistance / maxDistance) * 100;
+
+        return {
+          ...color,
+          distance: avgDistance,
+          percentage: avgPercentage,
+          score: totalError // Lower is better
+        };
+      }
+
+      return null;
+    })
+    .filter((color): color is ColorDistance & { score: number } => color !== null)
+    .sort((a, b) => a.score - b.score) // Sort by best match (lowest error)
+    .slice(0, maxResults);
+
+  return colorsWithScores;
+}
