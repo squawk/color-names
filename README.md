@@ -4,15 +4,26 @@ A modern web application built with React and Vite that allows you to find color
 
 ## Features
 
+### Single Color Search Page
 - **Multi-format color input** - Search by RGB, Hex, or color name
 - Interactive RGB sliders with real-time color preview
 - Direct RGB value input for precise control
-- **Massive color database with 29,998 named colors**
 - **Two search modes:**
   - **Similar Colors** - Find colors within a tolerance percentage (0-50%)
   - **At Distance** - Find colors at a specific distance percentage (0-100%)
+
+### Multi-Constraint Search Page (NEW!)
+- **Find colors matching multiple distance requirements**
+- Add 2 or more color-percentage constraints
+- Find colors that are simultaneously at specific distances from multiple colors
+- Example: Find colors that are 20% from "Earth Tone" AND 50% from "Sky Blue"
+- Adjustable tolerance for matching flexibility
+
+### General Features
+- **Massive color database with 29,998 named colors**
 - Display RGB and Hex values for any color
-- Beautiful gradient background and modern UI
+- Beautiful gradient navigation and modern UI
+- Two-page application with React Router
 - Responsive design that works on all devices
 - Instant color name lookup
 
@@ -33,6 +44,15 @@ Search for a color using any format:
 3. Select "At Distance" mode
 4. Set distance to 80%
 5. See colors that are approximately 80% different from Earth Tone!
+
+### Multi-Constraint Search
+Navigate to the "Multi-Constraint" page and try this:
+1. **Constraint 1**: Enter "Earth Tone", set distance to 20%
+2. **Constraint 2**: Enter "Sky Blue", set distance to 50%
+3. **Constraint 3**: Click "+ Add Another Constraint", enter "Forest Green", set distance to 30%
+4. Set tolerance to 10%
+5. Click "Find Matching Colors"
+6. Results: Colors that are ~20% from Earth Tone, ~50% from Sky Blue, AND ~30% from Forest Green simultaneously!
 
 ## Getting Started
 
@@ -106,12 +126,39 @@ Press Enter or click Search to load the color.
 3. Select "At Distance" mode
 4. Set distance to 80% to find contrasting colors
 
+### Multi-Constraint Search (Page 2)
+
+Click "Multi-Constraint" in the navigation to access advanced search.
+
+**How it works:**
+- Add multiple color-distance pairs as constraints
+- The app finds colors that satisfy ALL constraints simultaneously
+- Each constraint specifies: a color and desired distance percentage
+
+**Example workflow:**
+1. Click "Multi-Constraint" in navigation
+2. Add constraints:
+   - Constraint 1: "Crimson" at 15%
+   - Constraint 2: "Navy" at 60%
+   - Constraint 3: "Gold" at 40%
+3. Adjust tolerance (10% recommended)
+4. Click "Find Matching Colors"
+5. View results that match all three distance requirements
+
+**Use cases:**
+- Finding colors that blend well between multiple reference colors
+- Creating color palettes with specific relationships
+- Finding colors at precise distances from multiple anchors
+- Advanced color theory applications
+
 ## Tech Stack
 
 - **React** - UI library
+- **React Router 7** - Client-side routing
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
 - **CSS3** - Styling with gradients and animations
+- **Euclidean Distance Algorithm** - Color similarity calculations
 
 ## Scripts
 
