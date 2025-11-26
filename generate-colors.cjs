@@ -57,23 +57,133 @@ export interface ColorDistance extends ColorName {
 }
 
 /**
- * Calculate the percentage difference between two RGB colors
- * Uses average of absolute differences per channel
- * Returns a value between 0 (identical) and 100 (maximum difference)
+ * Convert RGB to LAB color space
+ * LAB is a perceptually uniform color space that better matches human vision
+ */
+function rgbToLab(r: number, g: number, b: number): [number, number, number] {
+  // Normalize RGB values to 0-1
+  let rNorm = r / 255;
+  let gNorm = g / 255;
+  let bNorm = b / 255;
+
+  // Apply gamma correction (sRGB to linear RGB)
+  rNorm = rNorm > 0.04045 ? Math.pow((rNorm + 0.055) / 1.055, 2.4) : rNorm / 12.92;
+  gNorm = gNorm > 0.04045 ? Math.pow((gNorm + 0.055) / 1.055, 2.4) : gNorm / 12.92;
+  bNorm = bNorm > 0.04045 ? Math.pow((bNorm + 0.055) / 1.055, 2.4) : bNorm / 12.92;
+
+  // Convert to XYZ color space (using D65 illuminant)
+  let x = rNorm * 0.4124564 + gNorm * 0.3575761 + bNorm * 0.1804375;
+  let y = rNorm * 0.2126729 + gNorm * 0.7151522 + bNorm * 0.0721750;
+  let z = rNorm * 0.0193339 + gNorm * 0.1191920 + bNorm * 0.9503041;
+
+  // Normalize for D65 white point
+  x = x / 0.95047;
+  y = y / 1.00000;
+  z = z / 1.08883;
+
+  // Convert to LAB
+  x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x + 16/116);
+  y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y + 16/116);
+  z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z + 16/116);
+
+  const L = (116 * y) - 16;
+  const a = 500 * (x - y);
+  const bVal = 200 * (y - z);
+
+  return [L, a, bVal];
+}
+
+/**
+ * Calculate the perceptual color distance using DeltaE CIE2000
+ * This is the most accurate formula for measuring how humans perceive color differences
+ * Returns a percentage from 0 (identical) to 100 (maximum perceptual difference)
  */
 export function calculateColorDistance(
   r1: number, g1: number, b1: number,
   r2: number, g2: number, b2: number
 ): number {
-  const rDiff = Math.abs(r1 - r2);
-  const gDiff = Math.abs(g1 - g2);
-  const bDiff = Math.abs(b1 - b2);
+  const lab1 = rgbToLab(r1, g1, b1);
+  const lab2 = rgbToLab(r2, g2, b2);
 
-  // Average difference across all channels
-  const avgDiff = (rDiff + gDiff + bDiff) / 3;
+  const L1 = lab1[0], a1 = lab1[1], b1Val = lab1[2];
+  const L2 = lab2[0], a2 = lab2[1], b2Val = lab2[2];
 
-  // Convert to percentage (0-100)
-  return (avgDiff / 255) * 100;
+  // Calculate CIEDE2000 color difference
+  const dL = L2 - L1;
+  const Lbar = (L1 + L2) / 2;
+
+  const C1 = Math.sqrt(a1 * a1 + b1Val * b1Val);
+  const C2 = Math.sqrt(a2 * a2 + b2Val * b2Val);
+  const Cbar = (C1 + C2) / 2;
+
+  const G = 0.5 * (1 - Math.sqrt(Math.pow(Cbar, 7) / (Math.pow(Cbar, 7) + Math.pow(25, 7))));
+
+  const a1p = a1 * (1 + G);
+  const a2p = a2 * (1 + G);
+
+  const C1p = Math.sqrt(a1p * a1p + b1Val * b1Val);
+  const C2p = Math.sqrt(a2p * a2p + b2Val * b2Val);
+  const Cbarp = (C1p + C2p) / 2;
+
+  const dCp = C2p - C1p;
+
+  const h1p = (Math.atan2(b1Val, a1p) * 180 / Math.PI + 360) % 360;
+  const h2p = (Math.atan2(b2Val, a2p) * 180 / Math.PI + 360) % 360;
+
+  let dhp;
+  if (C1p * C2p === 0) {
+    dhp = 0;
+  } else if (Math.abs(h2p - h1p) <= 180) {
+    dhp = h2p - h1p;
+  } else if (h2p - h1p > 180) {
+    dhp = h2p - h1p - 360;
+  } else {
+    dhp = h2p - h1p + 360;
+  }
+
+  const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin((dhp * Math.PI / 180) / 2);
+
+  let Hbarp;
+  if (C1p * C2p === 0) {
+    Hbarp = h1p + h2p;
+  } else if (Math.abs(h1p - h2p) <= 180) {
+    Hbarp = (h1p + h2p) / 2;
+  } else if (h1p + h2p < 360) {
+    Hbarp = (h1p + h2p + 360) / 2;
+  } else {
+    Hbarp = (h1p + h2p - 360) / 2;
+  }
+
+  const T = 1 -
+    0.17 * Math.cos((Hbarp - 30) * Math.PI / 180) +
+    0.24 * Math.cos(2 * Hbarp * Math.PI / 180) +
+    0.32 * Math.cos((3 * Hbarp + 6) * Math.PI / 180) -
+    0.20 * Math.cos((4 * Hbarp - 63) * Math.PI / 180);
+
+  const sL = 1 + (0.015 * Math.pow(Lbar - 50, 2)) / Math.sqrt(20 + Math.pow(Lbar - 50, 2));
+  const sC = 1 + 0.045 * Cbarp;
+  const sH = 1 + 0.015 * Cbarp * T;
+
+  const dTheta = 30 * Math.exp(-Math.pow((Hbarp - 275) / 25, 2));
+  const RC = 2 * Math.sqrt(Math.pow(Cbarp, 7) / (Math.pow(Cbarp, 7) + Math.pow(25, 7)));
+  const RT = -RC * Math.sin(2 * dTheta * Math.PI / 180);
+
+  const kL = 1, kC = 1, kH = 1;
+
+  const deltaE = Math.sqrt(
+    Math.pow(dL / (kL * sL), 2) +
+    Math.pow(dCp / (kC * sC), 2) +
+    Math.pow(dHp / (kH * sH), 2) +
+    RT * (dCp / (kC * sC)) * (dHp / (kH * sH))
+  );
+
+  // Convert DeltaE to percentage (0-100)
+  // DeltaE 2000 typically ranges from 0 to ~100 for practical color differences
+  const maxDeltaE = 100;
+  const distancePercent = (deltaE / maxDeltaE) * 100;
+
+  // Return closeness percentage (100 = identical, 0 = maximum difference)
+  return 100 - Math.min(distancePercent, 100);
 }
 
 /**

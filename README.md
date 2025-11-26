@@ -158,7 +158,17 @@ Click "Multi-Constraint" in the navigation to access advanced search.
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
 - **CSS3** - Styling with gradients and animations
-- **Euclidean Distance Algorithm** - Color similarity calculations
+- **DeltaE CIE2000** - Perceptually accurate color distance calculations
+
+## Color Distance Algorithm
+
+This app uses the **DeltaE CIE2000 (ΔE2000)** formula for calculating color distances. This is the most perceptually accurate color difference formula available, which means:
+
+- Colors that look similar to humans get low distance scores
+- Colors that look different to humans get high distance scores
+- The algorithm accounts for human perception across different hues, lightness, and saturation
+
+The formula converts RGB colors to the LAB color space (which is perceptually uniform) and then applies the sophisticated CIEDE2000 distance calculation. This is much more accurate than simple RGB distance calculations and matches how humans actually perceive color differences.
 
 ## Scripts
 
