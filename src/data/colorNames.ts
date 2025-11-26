@@ -180008,17 +180008,23 @@ export interface ColorDistance extends ColorName {
 }
 
 /**
- * Calculate the Euclidean distance between two RGB colors
- * Returns a value between 0 and ~441 (sqrt(255^2 + 255^2 + 255^2))
+ * Calculate the percentage difference between two RGB colors
+ * Uses average of absolute differences per channel
+ * Returns a value between 0 (identical) and 100 (maximum difference)
  */
 export function calculateColorDistance(
   r1: number, g1: number, b1: number,
   r2: number, g2: number, b2: number
 ): number {
-  const rDiff = r1 - r2;
-  const gDiff = g1 - g2;
-  const bDiff = b1 - b2;
-  return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+  const rDiff = Math.abs(r1 - r2);
+  const gDiff = Math.abs(g1 - g2);
+  const bDiff = Math.abs(b1 - b2);
+
+  // Average difference across all channels
+  const avgDiff = (rDiff + gDiff + bDiff) / 3;
+
+  // Convert to percentage (0-100)
+  return (avgDiff / 255) * 100;
 }
 
 /**
@@ -180037,25 +180043,18 @@ export function findSimilarColors(
   tolerancePercent: number,
   maxResults: number = 50
 ): ColorDistance[] {
-  // Maximum possible distance in RGB space
-  const maxDistance = Math.sqrt(255 * 255 + 255 * 255 + 255 * 255); // ~441.67
-
-  // Convert percentage to actual distance threshold
-  const threshold = (tolerancePercent / 100) * maxDistance;
-
   // Calculate distances for all colors
   const colorsWithDistance: ColorDistance[] = colorNames
     .map(color => {
-      const distance = calculateColorDistance(r, g, b, color.r, color.g, color.b);
-      const percentage = (distance / maxDistance) * 100;
+      const percentage = calculateColorDistance(r, g, b, color.r, color.g, color.b);
       return {
         ...color,
-        distance,
+        distance: percentage, // Store percentage as distance for compatibility
         percentage
       };
     })
-    .filter(color => color.distance <= threshold)
-    .sort((a, b) => a.distance - b.distance)
+    .filter(color => color.percentage <= tolerancePercent)
+    .sort((a, b) => a.percentage - b.percentage)
     .slice(0, maxResults);
 
   return colorsWithDistance;
@@ -180079,32 +180078,24 @@ export function findColorsAtDistance(
   rangePercent: number = 5,
   maxResults: number = 50
 ): ColorDistance[] {
-  // Maximum possible distance in RGB space
-  const maxDistance = Math.sqrt(255 * 255 + 255 * 255 + 255 * 255); // ~441.67
-
-  // Convert percentages to actual distances
-  const targetDistance = (targetPercent / 100) * maxDistance;
-  const rangeDistance = (rangePercent / 100) * maxDistance;
-
-  const minDistance = Math.max(0, targetDistance - rangeDistance);
-  const maxDistanceThreshold = Math.min(maxDistance, targetDistance + rangeDistance);
+  const minPercent = Math.max(0, targetPercent - rangePercent);
+  const maxPercent = Math.min(100, targetPercent + rangePercent);
 
   // Calculate distances for all colors
   const colorsWithDistance: ColorDistance[] = colorNames
     .map(color => {
-      const distance = calculateColorDistance(r, g, b, color.r, color.g, color.b);
-      const percentage = (distance / maxDistance) * 100;
+      const percentage = calculateColorDistance(r, g, b, color.r, color.g, color.b);
       return {
         ...color,
-        distance,
+        distance: percentage, // Store percentage as distance for compatibility
         percentage
       };
     })
-    .filter(color => color.distance >= minDistance && color.distance <= maxDistanceThreshold)
+    .filter(color => color.percentage >= minPercent && color.percentage <= maxPercent)
     .sort((a, b) => {
       // Sort by how close to target distance
-      const aDiff = Math.abs(a.distance - targetDistance);
-      const bDiff = Math.abs(b.distance - targetDistance);
+      const aDiff = Math.abs(a.percentage - targetPercent);
+      const bDiff = Math.abs(b.percentage - targetPercent);
       return aDiff - bDiff;
     })
     .slice(0, maxResults);
@@ -180136,9 +180127,6 @@ export function findColorsMatchingConstraints(
     return [];
   }
 
-  // Maximum possible distance in RGB space
-  const maxDistance = Math.sqrt(255 * 255 + 255 * 255 + 255 * 255); // ~441.67
-
   // Calculate how well each color matches ALL constraints
   const colorsWithScores: (ColorDistance & { score: number })[] = colorNames
     .map(color => {
@@ -180147,11 +180135,10 @@ export function findColorsMatchingConstraints(
 
       // Check each constraint
       for (const constraint of constraints) {
-        const distance = calculateColorDistance(
+        const percentage = calculateColorDistance(
           constraint.r, constraint.g, constraint.b,
           color.r, color.g, color.b
         );
-        const percentage = (distance / maxDistance) * 100;
 
         // Calculate how far off this color is from the target distance
         const error = Math.abs(percentage - constraint.targetPercent);
@@ -180166,19 +180153,17 @@ export function findColorsMatchingConstraints(
 
       // Only include colors that satisfy ALL constraints
       if (validConstraints === constraints.length) {
-        // Average distance to all constraint colors
-        const avgDistance = constraints.reduce((sum, constraint) => {
+        // Average percentage distance to all constraint colors
+        const avgPercentage = constraints.reduce((sum, constraint) => {
           return sum + calculateColorDistance(
             constraint.r, constraint.g, constraint.b,
             color.r, color.g, color.b
           );
         }, 0) / constraints.length;
 
-        const avgPercentage = (avgDistance / maxDistance) * 100;
-
         return {
           ...color,
-          distance: avgDistance,
+          distance: avgPercentage, // Store percentage as distance for compatibility
           percentage: avgPercentage,
           score: totalError // Lower is better
         };
